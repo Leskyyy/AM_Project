@@ -1,0 +1,20 @@
+- losowanie kraju z listy z api
+- dopasowanie wylosowanego kraju do obrazka
+- usuniecie tla z obrazka (removebg)
+- odleglosc od kraju wpisanego do docelowego
+- kierunek od kraju wpisanego do docelowego
+- postawic baze danych z uzytkownikami i streakami
+- przycisk reset
+- logowanie facebook, twitter
+
+
+
+
+
+czytelny i przyjazny interfejs - 1 pkt
+logowanie do wybranych chronionych funkcjonalności aplikacji – 1 pkt
+wykorzystanie zdalnej bazy danych – 2 pkt
+wykorzystanie lokalnej bazy danych – 1 pkt !!!
+wykorzystanie interfejsu do wybranych serwisów społecznościowych – 1 pkt !!!
+wykorzystanie interfejsu komunikacyjnego smartfona (np. BT, NFC, 4G, WiFi, SMS) - 2 pkt ?
+wykorzystanie jednego z serwisów mapowych – 2 pkt ?
