@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, PixelRatio, Alert, PanResponder } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, PixelRatio, Alert, PanResponder, MaskedViewBase } from 'react-native';
 import Keyboard from './src/components/Keyboard'
 import { useEffect, useState } from 'react';
 import { colors } from './src/constants';
@@ -10,8 +10,8 @@ const copyArray = (arr) => {
   return [...arr]
 }
 
-const getAllCountires = () => {
-  fetch('https://restcountries.com/v3.1/all', {
+function getRandomCountry() {
+  let names = fetch('https://restcountries.com/v3.1/all', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -19,30 +19,58 @@ const getAllCountires = () => {
   })
   .then((response) => response.json())
   .then((data) => {
+    var randomnumber = Math.floor(Math.random() * (250 - 0 + 1)) + 0;
     const names = data.map(country => country.name.common)
-    console.log('Success:', data[0].name.common);
-    console.log('Lista nazw: ', names.length)
+    return names[randomnumber];
+    
   })
   .catch((error) => {
     console.error('Error:', error);
   });
+  return names;
 }
 
 
 export default function App() {
 
-  const countryToGuess = "poland";
-  getAllCountires();
-
   const [row, setRow] = useState(new Array(NUMBER_OF_TRIES).fill(''));
+  const [distance, setDistance] = useState(new Array(NUMBER_OF_TRIES).fill(''))
   const [currentRow, setCurrentRow] = useState(0);
   const [gameState, setGamesState] = useState('playing');
+  const [targetCountry, setTargetCountry] = useState('');
+  const [currentPath, setCurrentPath] = useState('')
+
+  useEffect(() => {
+    getRandomCountry().then(response => {
+      setTargetCountry(response)
+      // let path = require('./assets/countriesMaps/' + response.toLowerCase().replace(/\s/g, '').toString() + '.png');
+      // setCurrentPath(path);
+      console.log(response);
+      // console.log(currentPath);
+    }).catch(error => console.log(error))
+  },[]);
 
   useEffect(() => {
     if (currentRow > 0){
       checkGameState();
+      calculateDistance();
     }
   }, [currentRow])
+
+  const calcDistBetweenTwoPoints = (source, target) => {
+    console.log("Obliczam odlegosc pomiedzy " + source + ' a ' + target);
+    return 50;
+  }
+
+  const calculateDistance = () => {
+    const tempRow = copyArray(row);
+    const tempDistances = copyArray(distance);
+    console.log('to niezly current distance', tempDistances);
+    console.log('to niezly current row: ', tempRow);
+    let dist = calcDistBetweenTwoPoints(tempRow[currentRow - 1], targetCountry);
+    tempDistances[currentRow - 1] = dist.toString();
+    setDistance(tempDistances)
+  }
 
   const checkGameState = () => {
     if(checkIfWon()){
@@ -57,7 +85,7 @@ export default function App() {
   const checkIfWon = () => {
     const newRow = row[currentRow - 1];
     console.log("NEW ROW: ", newRow)
-    return newRow.toLowerCase() == countryToGuess.toLowerCase()
+    return newRow.replace(/\s/g, '').toLowerCase() == targetCountry.toLowerCase()
   }
 
   const checkIfLost = () => {
@@ -74,6 +102,8 @@ export default function App() {
       tempRow[currentRow] = tempRow[currentRow].slice(0, -1)
     }else if(key == 'ENTER'){
       setCurrentRow(currentRow + 1);
+    }else if(key == '␣'){
+      tempRow[currentRow] = tempRow[currentRow] + ' ';
     }else{
       tempRow[currentRow] = tempRow[currentRow] + key.toUpperCase();
     }
@@ -85,27 +115,33 @@ export default function App() {
       <Text style={styles.title}>Wordle</Text>
 
       <View style={styles.mapContainer} >
-        <Image source={require('./assets/countriesMaps/AF-EPS-01-0001.png')} style={styles.map}></Image>
+        <Image source={require('./assets/countriesMaps/afghanistan.png')} style={styles.map}></Image>
       </View>
 
       <View style={styles.answersContainer}>
         <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[0]}</Text>
+            <Text style={styles.distance} >{distance[0]}</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[1]}</Text>
+            <Text style={styles.distance} >{distance[1]}</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[2]}</Text>
+            <Text style={styles.distance} >12222 NE</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[3]}</Text>
+            <Text style={styles.distance} >12222 NE</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[4]}</Text>
+            <Text style={styles.distance} >12222 NE</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[5]}</Text>
+            <Text style={styles.distance} >12222 NE</Text>
         </View>
       </View>
 
@@ -142,16 +178,27 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 20
+    fontSize: 19
   },
   answersContainer: {
     marginTop: 30,
-    width: Dimensions.get('window').width * 0.8,
+    width: Dimensions.get('window').width * 0.9,
     backgroundColor: '#0c044d',
   },
   asnwerView: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     height: 25,
-    margin: 5,
+    marginTop: 5,
+    marginBottom: 5,
     backgroundColor: '#738a94',
+  },
+  distance: {
+    marginLeft: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    fontSize: 19,
+    paddingRight: 10
   }
 });

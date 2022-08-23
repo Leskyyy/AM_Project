@@ -1,11 +1,11 @@
-- losowanie kraju z listy z api
-- dopasowanie wylosowanego kraju do obrazka
-- usuniecie tla z obrazka (removebg)
-- odleglosc od kraju wpisanego do docelowego
-- kierunek od kraju wpisanego do docelowego
-- postawic baze danych z uzytkownikami i streakami
-- przycisk reset
-- logowanie facebook, twitter
+        - losowanie kraju z listy z api 1
+    - dopasowanie wylosowanego kraju do obrazka 1
+- usuniecie tla z obrazka (removebg) 1
+    - odleglosc od kraju wpisanego do docelowego 1
+    - kierunek od kraju wpisanego do docelowego 2
+            - postawic baze danych z uzytkownikami i streakami 3
+- przycisk reset 2
+            - logowanie facebook, twitter 3
 
 
 
