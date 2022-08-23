@@ -18,3 +18,4 @@ wykorzystanie lokalnej bazy danych – 1 pkt !!!
 wykorzystanie interfejsu do wybranych serwisów społecznościowych – 1 pkt !!!
 wykorzystanie interfejsu komunikacyjnego smartfona (np. BT, NFC, 4G, WiFi, SMS) - 2 pkt ?
 wykorzystanie jednego z serwisów mapowych – 2 pkt ?
+aplikacja zasilana jest danymi ze źródeł zewnętrznych - 2pkt ?
