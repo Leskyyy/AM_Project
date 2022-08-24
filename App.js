@@ -40,18 +40,88 @@ export default function App() {
     }
   }, [currentRow]);
 
-  const calcDistBetweenTwoPoints = (source, target) => {
-    console.log("Obliczam odlegosc pomiedzy " + source + ' a ' + target);
-    return 50;
+  // const calcDistBetweenTwoPoints = (source, target) => {
+  //   console.log("Obliczam odlegosc pomiedzy " + source + ' a ' + target);
+  //   return 50;
+  // }
+
+  const Direction = {
+    North : 'N',
+    South : 'S',
+    East : 'E',
+    West : 'W',
+    Northeast : 'NE',
+    Northwest : 'NW',
+    Southeast : 'SE',
+    Southwest : 'SW',
+    Underfined : 'Undefined'
+  }
+  
+  function my_function(point_start, point_end) {
+  
+    let tan_Pi_div_8 = Math.sqrt(2.0) - 1.0;
+  
+    let dx = point_end.X - point_start.X;
+    let dy = point_end.Y - point_start.Y;
+  
+    if(Math.abs(dx) > Math.abs(dy)){
+      if(Math.abs(dy / dx) <= tan_Pi_div_8){
+        return dx > 0 ? Direction.East : Direction.West;
+      }else if(dx > 0){
+        return dy > 0 ? Direction.Northeast : Direction.Southeast;
+      }else{
+        return dy > 0 ? Direction.Northwest : Direction.Southwest;
+      }
+    }
+    else if (Math.abs(dy) > 0)
+      {
+        if (Math.abs(dx / dy) <= tan_Pi_div_8)
+        {
+          return dy > 0 ? Direction.North : Direction.South;
+        }
+        else if (dy > 0)
+        {
+          return dx > 0 ? Direction.Northeast : Direction.Northwest;
+        }
+        else 
+        {
+          return dx > 0 ? Direction.Southeast : Direction.Southwest;
+        }
+      }
+      else 
+      {
+        return Direction.Underfined;
+      }
   }
 
-  const calculateDistance = () => {
+  async function calcDistBetweenTwoPoints(source, target) {
+    const response = await fetch('https://www.dystans.org/route.json?stops=' + source + '|' + target);
+    try {
+      const data = await response.json();
+      console.log('The distance between ' + source + ' and ' + target + ' is ' + data.distance);
+      console.log('First country latitude: ', data.stops[0].latitude)
+      let source_country = {
+        Y: data.stops[0].latitude,
+        X: data.stops[0].longitude
+      }
+      let target_country = {
+        Y: data.stops[1].latitude,
+        X: data.stops[1].longitude
+      }
+      return [data.distance, source_country, target_country];
+    } catch (err) {
+      console.log(err);
+    }
+}
+
+  const calculateDistance = async() => {
     const tempRow = copyArray(row);
     const tempDistances = copyArray(distance);
     console.log('to niezly current distance', tempDistances);
     console.log('to niezly current row: ', tempRow);
-    let dist = calcDistBetweenTwoPoints(tempRow[currentRow - 1], targetCountry);
-    tempDistances[currentRow - 1] = dist.toString();
+    let data = await calcDistBetweenTwoPoints(tempRow[currentRow - 1], targetCountry);
+    console.log(data)
+    tempDistances[currentRow - 1] = data[0].toString() + ' ' + my_function(data[1], data[2]).toString();
     setDistance(tempDistances)
   }
 
