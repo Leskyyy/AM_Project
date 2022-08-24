@@ -10,27 +10,6 @@ const copyArray = (arr) => {
   return [...arr]
 }
 
-function getRandomCountry() {
-  let names = fetch('https://restcountries.com/v3.1/all', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    var randomnumber = Math.floor(Math.random() * (250 - 0 + 1)) + 0;
-    const names = data.map(country => country.name.common)
-    return names[randomnumber];
-    
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
-  return names;
-}
-
-
 export default function App() {
 
   const [row, setRow] = useState(new Array(NUMBER_OF_TRIES).fill(''));
@@ -40,22 +19,26 @@ export default function App() {
   const [targetCountry, setTargetCountry] = useState('');
   const [currentPath, setCurrentPath] = useState('')
 
+  var routes = require("./assets/remove_bg");
+
+  function getRandomProperty(obj) {
+    const keys = Object.keys(obj);
+    return keys[Math.floor(Math.random() * keys.length)];
+  }
+
   useEffect(() => {
-    getRandomCountry().then(response => {
-      setTargetCountry(response)
-      // let path = require('./assets/countriesMaps/' + response.toLowerCase().replace(/\s/g, '').toString() + '.png');
-      // setCurrentPath(path);
-      console.log(response);
-      // console.log(currentPath);
-    }).catch(error => console.log(error))
-  },[]);
+      let randomCountry = getRandomProperty(routes);
+      console.log('Random country: ' + randomCountry);
+      setCurrentPath(routes[randomCountry]);
+      setTargetCountry(randomCountry);
+  },[])
 
   useEffect(() => {
     if (currentRow > 0){
       checkGameState();
       calculateDistance();
     }
-  }, [currentRow])
+  }, [currentRow]);
 
   const calcDistBetweenTwoPoints = (source, target) => {
     console.log("Obliczam odlegosc pomiedzy " + source + ' a ' + target);
@@ -109,13 +92,14 @@ export default function App() {
     }
     setRow(tempRow);
   }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <Text style={styles.title}>Wordle</Text>
 
       <View style={styles.mapContainer} >
-        <Image source={require('./assets/countriesMaps/afghanistan.png')} style={styles.map}></Image>
+        <Image source={currentPath} style={styles.map}></Image>
       </View>
 
       <View style={styles.answersContainer}>
@@ -167,7 +151,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
     width: 300,
     height: 225,
-    backgroundColor: 'red',
+    backgroundColor: '#0c044d',
   },
   map: {
     flex: 1,
