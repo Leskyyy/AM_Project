@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, PixelRatio, Alert, PanResponder, MaskedViewBase } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, PixelRatio, Alert, PanResponder, MaskedViewBase, Button, Pressable } from 'react-native';
 import Keyboard from './src/components/Keyboard'
 import { useEffect, useState } from 'react';
 import { colors } from './src/constants';
@@ -40,10 +40,18 @@ export default function App() {
     }
   }, [currentRow]);
 
-  // const calcDistBetweenTwoPoints = (source, target) => {
-  //   console.log("Obliczam odlegosc pomiedzy " + source + ' a ' + target);
-  //   return 50;
-  // }
+
+  function resetGame(){
+    setRow(new Array(NUMBER_OF_TRIES).fill(''));
+    setDistance(new Array(NUMBER_OF_TRIES).fill(''));
+    setCurrentRow(0);
+    setGamesState('playing');
+
+    let randomCountry = getRandomProperty(routes);
+    console.log('Random country: ' + randomCountry);
+    setCurrentPath(routes[randomCountry]);
+    setTargetCountry(randomCountry);
+  }
 
   const Direction = {
     North : 'N',
@@ -121,7 +129,11 @@ export default function App() {
     console.log('to niezly current row: ', tempRow);
     let data = await calcDistBetweenTwoPoints(tempRow[currentRow - 1], targetCountry);
     console.log(data)
-    tempDistances[currentRow - 1] = data[0].toString() + ' ' + my_function(data[1], data[2]).toString();
+    if(data[0].toString() == '0'){
+      tempDistances[currentRow - 1] = 'YOU WON!';
+    }else{
+      tempDistances[currentRow - 1] = data[0].toString() + ' ' + my_function(data[1], data[2]).toString();
+    }
     setDistance(tempDistances)
   }
 
@@ -166,7 +178,12 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      <Text style={styles.title}>Wordle</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>GUESS</Text>
+        {gameState != 'playing' && <Pressable style={styles.button} onPress={resetGame}>
+          <Text style={styles.text}>Reset</Text>
+        </Pressable>}
+      </View>
 
       <View style={styles.mapContainer} >
         <Image source={currentPath} style={styles.map}></Image>
@@ -183,19 +200,19 @@ export default function App() {
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[2]}</Text>
-            <Text style={styles.distance} >12222 NE</Text>
+            <Text style={styles.distance} >{distance[2]}</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[3]}</Text>
-            <Text style={styles.distance} >12222 NE</Text>
+            <Text style={styles.distance} >{distance[3]}</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[4]}</Text>
-            <Text style={styles.distance} >12222 NE</Text>
+            <Text style={styles.distance} >{distance[4]}</Text>
           </View>
           <View style={styles.asnwerView} >
             <Text style={styles.answer} >{row[5]}</Text>
-            <Text style={styles.distance} >12222 NE</Text>
+            <Text style={styles.distance} >{distance[5]}</Text>
         </View>
       </View>
 
@@ -218,7 +235,7 @@ const styles = StyleSheet.create({
     letterSpacing: 7
   },
   mapContainer: {
-    marginTop: 50,
+    marginTop: 30,
     width: 300,
     height: 225,
     backgroundColor: '#0c044d',
@@ -254,5 +271,26 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 19,
     paddingRight: 10
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: 'black',
+    marginTop: 20,
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'flex-start',
   }
 });
