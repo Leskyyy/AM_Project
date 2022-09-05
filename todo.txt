@@ -5,23 +5,26 @@ Done:
 + odleglosc od kraju wpisanego do docelowego 1
 + kierunek od kraju wpisanego do docelowego 2
 + przycisk reset 2
++ poprawienie dzialania aplikacji
 
 TODO:
 * postawic baze danych z uzytkownikami i streakami 3
-* logowanie facebook, twitter 3
+* dodac landscape view
 
 
+niemożliwe:
+- logowanie facebook, twitter 3
 
 Punkty:
-+ czytelny i przyjazny interfejs - 1 pkt  done
-* logowanie do wybranych chronionych funkcjonalności aplikacji – 1 pkt
-+ wykorzystanie zdalnej bazy danych – 2 pkt  done
-* wykorzystanie lokalnej bazy danych – 1 pkt !!!
-* wykorzystanie interfejsu do wybranych serwisów społecznościowych – 1 pkt !!!
-+ wykorzystanie interfejsu komunikacyjnego smartfona (np. BT, NFC, 4G, WiFi, SMS) - 2 pkt ?
-- wykorzystanie jednego z serwisów mapowych – 2 pkt ?
-+ aplikacja zasilana jest danymi ze źródeł zewnętrznych - 2pkt ?
-? oryginalność pomysłu (brak podobnych aplikacji na rynku) – 3 pkt
++ czytelny i przyjazny interfejs - 1 pkt (0.8 pkt) - brak landscape view
++ logowanie do wybranych chronionych funkcjonalności aplikacji – 1 pkt (1)
++ wykorzystanie zdalnej bazy danych – 2 pkt (2)
++ wykorzystanie interfejsu komunikacyjnego smartfona (np. BT, NFC, 4G, WiFi, SMS) - 2 pkt (2?)
++ aplikacja zasilana jest danymi ze źródeł zewnętrznych - 2pkt (2)
+* wykorzystanie lokalnej bazy danych – 1 pkt (0)
+- wykorzystanie interfejsu do wybranych serwisów społecznościowych – 1 pkt (0)
+- wykorzystanie jednego z serwisów mapowych – 2 pkt (0)
+- oryginalność pomysłu (brak podobnych aplikacji na rynku) – 3 pkt (0)
 
-Suma aktualnie: 5/7
-Suma zakładana: 8/10
+Suma aktualnie: 5.8/7.8
+Suma zakładana: 9/11
