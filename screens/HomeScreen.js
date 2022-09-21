@@ -1,3 +1,4 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, PixelRatio, Alert, PanResponder, MaskedViewBase, Button, Pressable, TouchableOpacity } from 'react-native';
 import Keyboard from '../src/components/Keyboard'
@@ -5,6 +6,7 @@ import { useEffect, useState } from 'react';
 import 'expo-dev-client';
 import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/core'
+import * as SQLite from 'expo-sqlite';
 
 
 const NUMBER_OF_TRIES = 6;
@@ -13,25 +15,66 @@ const copyArray = (arr) => {
   return [...arr]
 }
 
-export default function App() {
+function connectToDB() {
+  const db = SQLite.openDatabase('db.db');
+  
+  console.log('connected to db')
+  return db;
+}
+
+function createTable(db) {
+  db.transaction(tx => {
+    tx.executeSql(
+      'create table if not exists usersStreaks (id integer primary key autoincrement, user text not null, maxStreak integer, currentStreak integer);'
+    );
+  });
+}
+
+function dropTable(db) {
+  db.transaction(tx => {
+    tx.executeSql(
+      'drop table if exists usersStreaks;'
+    );
+  });
+}
+
+function fetchUserData(db, user) {
+  db.transaction(tx => {
+    tx.executeSql(
+      'select * from usersStreaks where user = ?;',
+      user
+    );
+  });
+}
+
+const db = connectToDB();
+
+export default function HomeScreen() {
 
   const navigation = useNavigation()
 
   const handleSignOut = () => {
       auth
-          .signOut()
-          .then(() => {
-              navigation.replace('Login')
-          })
-          .catch(error => alert(error.message))
+        .signOut()
+        .then(() => {
+            navigation.replace('Login')
+        })
+        .catch(error => alert(error.message))
   }
 
-  const [row, setRow] = useState(new Array(NUMBER_OF_TRIES).fill(''));
+  const navigateToMap = () => {
+    navigation
+      .navigate('Map', {latitude: currentLatitude, longitude: currentLongitude})
+  }
+
+  const [row, setRow] = useState(new Array(NUMBER_OF_TRIES).fill(''))
   const [distance, setDistance] = useState(new Array(NUMBER_OF_TRIES).fill(''))
   const [currentRow, setCurrentRow] = useState(0);
-  const [gameState, setGamesState] = useState('playing');
-  const [targetCountry, setTargetCountry] = useState('');
+  const [gameState, setGamesState] = useState('playing')
+  const [targetCountry, setTargetCountry] = useState('')
   const [currentPath, setCurrentPath] = useState('')
+  const [currentLatitude, setCurrentLatitude] = useState(0)
+  const [currentLongitude, setCurrentLongitude] = useState(0)
 
   var routes = require("../assets/remove_bg");
   // console.log(routes);
@@ -359,9 +402,13 @@ export default function App() {
         X: data.stops[1].longitude
       }
 
+      setCurrentLatitude(data.stops[1].latitude);
+      setCurrentLongitude(data.stops[1].longitude);
+      console.log('current coordinates [HomeScreen]:', currentLatitude, currentLongitude);
+
       return [data.distance, source_country, target_country, guess];
     } catch (err) {
-      console.log(err);
+      console.log("calcDistBetweenTwoPoints error:", err);
     }
 }
 
@@ -464,12 +511,15 @@ export default function App() {
           <Text style={styles.resetText}>Reset</Text>
         </Pressable>}
 
-      <TouchableOpacity 
-        onPress={handleSignOut}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Sign out</Text>
-      </TouchableOpacity>
+      <View style={styles.navigationButtonsContainer}>
+        {gameState != 'playing' && <TouchableOpacity style={styles.button} onPress={navigateToMap}>
+          <Text style={styles.buttonText}>Open map</Text>
+        </TouchableOpacity>}
+
+        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+          <Text style={styles.buttonText}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
 
       <Keyboard style={styles.keyboard} onKeyPressed={onKeyPressed}/>
 
@@ -534,7 +584,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 3,
     backgroundColor: 'white',
-    marginTop: 20,
     width: Dimensions.get('window').width * 0.5,
   },
   text: {
@@ -563,11 +612,19 @@ const styles = StyleSheet.create({
     padding: 7,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
+    marginHorizontal: 10,
   },
   buttonText: {
       color: 'white',
       fontWeight: '700',
       fontSize: 16
   },
+  navigationButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 175,
+  }
 });
