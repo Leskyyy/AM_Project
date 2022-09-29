@@ -23,8 +23,8 @@ Punkty:
 + aplikacja zasilana jest danymi ze źródeł zewnętrznych - 2pkt (2)
 * wykorzystanie lokalnej bazy danych – 1 pkt (0)
 - wykorzystanie interfejsu do wybranych serwisów społecznościowych – 1 pkt (0)
-- wykorzystanie jednego z serwisów mapowych – 2 pkt (0)
+- wykorzystanie jednego z serwisów mapowych – 2 pkt (2)
 - oryginalność pomysłu (brak podobnych aplikacji na rynku) – 3 pkt (0)
 
-Suma aktualnie: 5.8/7.8
+Suma aktualnie: 7.8/7.8
 Suma zakładana: 9/11

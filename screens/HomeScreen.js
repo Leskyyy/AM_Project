@@ -7,6 +7,7 @@ import 'expo-dev-client';
 import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/core'
 import * as SQLite from 'expo-sqlite';
+import { openDatabase } from 'expo-sqlite';
 
 
 const NUMBER_OF_TRIES = 6;
@@ -14,40 +15,6 @@ const NUMBER_OF_TRIES = 6;
 const copyArray = (arr) => {
   return [...arr]
 }
-
-function connectToDB() {
-  const db = SQLite.openDatabase('db.db');
-  
-  console.log('connected to db')
-  return db;
-}
-
-function createTable(db) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'create table if not exists usersStreaks (id integer primary key autoincrement, user text not null, maxStreak integer, currentStreak integer);'
-    );
-  });
-}
-
-function dropTable(db) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'drop table if exists usersStreaks;'
-    );
-  });
-}
-
-function fetchUserData(db, user) {
-  db.transaction(tx => {
-    tx.executeSql(
-      'select * from usersStreaks where user = ?;',
-      user
-    );
-  });
-}
-
-const db = connectToDB();
 
 export default function HomeScreen() {
 
@@ -75,6 +42,7 @@ export default function HomeScreen() {
   const [currentPath, setCurrentPath] = useState('')
   const [currentLatitude, setCurrentLatitude] = useState(0)
   const [currentLongitude, setCurrentLongitude] = useState(0)
+  const [streaks, setStreaks] = useState(null);
 
   var routes = require("../assets/remove_bg");
   // console.log(routes);
@@ -97,6 +65,111 @@ export default function HomeScreen() {
       calculateDistance();
     }
   }, [currentRow]);
+
+  function connectToDB() {
+    const db = SQLite.openDatabase('db.db');
+    
+    console.log('connected to db')
+    return db;
+  }
+  
+  function createTable(db) {
+    return new Promise((resolve, reject) => {
+      db.transaction(
+          function (tx) {
+              tx.executeSql(" CREATE TABLE IF NOT EXISTS `streaks` (`username` VARCHAR(255),`streak` INT);");
+          },
+          function (error) {
+              reject(error.message);
+          },
+          function () {
+              resolve(true);
+              console.log('Created database OK');
+          }
+    );
+  });
+  }
+  
+  function insertNewUser(db, username) {
+    return new Promise((resolve, reject) => {
+      db.transaction(
+          function (tx) {
+              tx.executeSql("INSERT INTO streaks VALUES ('" + username + "', 0)"),
+              [username];
+          },
+          function (error) {
+              reject(error.message);
+          },
+          function () {
+              resolve(true);
+              console.log('Inserted new user');
+          }
+    );
+  });
+  }
+
+  function increaseUserStreak(db, username) {
+    return new Promise((resolve, reject) => {
+      db.transaction(
+          function (tx) {
+              tx.executeSql("UPDATE streaks set streak = streak + 1 where username='" + username + "'"),
+              [username];
+          },
+          function (error) {
+              reject(error.message);
+          },
+          function () {
+              resolve(true);
+              console.log('Increased user streak');
+          }
+    );
+  });
+  }
+
+  function decreaseUserStreak(db, username) {
+    return new Promise((resolve, reject) => {
+      db.transaction(
+          function (tx) {
+              tx.executeSql("UPDATE streaks set streak = 0 where username='" + username + "'"),
+              [username];
+          },
+          function (error) {
+              reject(error.message);
+          },
+          function () {
+              resolve(true);
+              console.log('Decreased user streak');
+          }
+    );
+  });
+  }
+  
+  function fetchUserData(db, name) {
+    return new Promise((resolve, reject) => {
+      db.transaction(
+          function (tx) {
+              tx.executeSql(
+                  'SELECT * FROM streaks WHERE username=?;',
+                  [name],
+                  function (tx, resultSet) {
+                      let data = [];
+                      for (let i = 0, c = resultSet.rows.length;i < c;i++) {
+                          data.push(resultSet.rows.item(i));
+                      }
+                      console.log('Retrieved data: ', data)
+                      resolve(data);
+                  },
+                  function (tx, error) {
+                      reject(error.message);
+                  }
+              );
+          },
+          function (error) {
+              reject(error.message);
+          }
+      );
+  });
+  }
 
 
   function resetGame(){
@@ -433,12 +506,77 @@ export default function HomeScreen() {
   }
 
   const checkGameState = () => {
+    let db = connectToDB();
+    createTable(db);
+    console.log('Your name: ', auth.currentUser.email)
     if(checkIfWon()){
-      Alert.alert("Congratulations, you won! The target country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1)) + ".";
       setGamesState('won');
+      // let mydata = fetchUserData(db, auth.currentUser.email)
+
+      fetchUserData(db, auth.currentUser.email)
+      .then((response) => {
+        if(response.length == 0){
+          console.log('Thats a new user, inserting into database');
+          insertNewUser(db, auth.currentUser.email).then( function() {
+            fetchUserData(db, auth.currentUser.email)
+            .then((response) => {
+              console.log('Checking if inserted: ', response);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+          });
+        }
+
+        increaseUserStreak(db, auth.currentUser.email)
+        .then((response) => {
+          fetchUserData(db, auth.currentUser.email)
+          .then((response) => {
+            console.log('Checking if updated: ', response[0]["streak"]);
+            Alert.alert("Congratulations, you won! The target country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1) + ". Your current streak is equal to " + response[0]["streak"]);
+
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        })
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     } else if(checkIfLost()){
-      Alert.alert("You lost! The target country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1) + '.');
       setGamesState('lost');
+      fetchUserData(db, auth.currentUser.email)
+      .then((response) => {
+        if(response.length == 0){
+          console.log('Thats a new user, inserting into database');
+          insertNewUser(db, auth.currentUser.email).then( function() {
+            fetchUserData(db, auth.currentUser.email)
+            .then((response) => {
+              console.log('Checking if inserted: ', response);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+          });
+        }
+
+        decreaseUserStreak(db, auth.currentUser.email)
+        .then((response) => {
+          fetchUserData(db, auth.currentUser.email)
+          .then((response) => {
+            console.log('Checking if updated: ', response[0]["streak"]);
+            Alert.alert("You lost! The target country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1) + '. Your streak has been cleared.');
+
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        })
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     }
   }
 
