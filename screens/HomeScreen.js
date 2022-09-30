@@ -8,7 +8,6 @@ import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/core'
 import * as SQLite from 'expo-sqlite';
 import { openDatabase } from 'expo-sqlite';
-import * as Network from 'expo-network';
 
 
 const NUMBER_OF_TRIES = 6;
@@ -533,7 +532,7 @@ export default function HomeScreen() {
           fetchUserData(db, auth.currentUser.email)
           .then((response) => {
             console.log('Checking if updated: ', response[0]["streak"]);
-            Alert.alert("Congratulations, you won! The target country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1) + ". Your current streak is equal to " + response[0]["streak"]);
+            Alert.alert("Congratulations, you won! Your current streak is equal to " + response[0]["streak"] + ".");
 
           })
           .catch((err) => {
@@ -566,7 +565,7 @@ export default function HomeScreen() {
           fetchUserData(db, auth.currentUser.email)
           .then((response) => {
             console.log('Checking if updated: ', response[0]["streak"]);
-            Alert.alert("You lost! The target country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1) + '. Your streak has been cleared.');
+            Alert.alert("You lost! The country was " + targetCountry.slice(0, 1).toUpperCase() + targetCountry.slice(1) + '. Your streak is 0.');
 
           })
           .catch((err) => {

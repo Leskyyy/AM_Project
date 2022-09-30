@@ -4,15 +4,11 @@ import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/core'
 import * as Network from 'expo-network';
 
-const alertWithoutButtons = () => {
+const noInternetAlert = () => {
     const title = 'Error';
     const message = 'Turn on internet in order to use the app';
-    const emptyArrayButtons = [];
-    const alertOptions = {
-      cancelable: false,
-    };
 
-    Alert.alert(title, message, emptyArrayButtons, alertOptions);
+    Alert.alert(title, message);
 };
 
 const ipAlert = async () => {
@@ -21,7 +17,7 @@ const ipAlert = async () => {
         console.log("Your phone is connected");
     }else{
         console.log("Your phone is not connected");
-        alertWithoutButtons();
+        noInternetAlert();
     }
   };
 
