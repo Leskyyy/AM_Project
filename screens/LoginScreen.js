@@ -1,9 +1,32 @@
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/core'
+import * as Network from 'expo-network';
+
+const alertWithoutButtons = () => {
+    const title = 'Error';
+    const message = 'Turn on internet in order to use the app';
+    const emptyArrayButtons = [];
+    const alertOptions = {
+      cancelable: false,
+    };
+
+    Alert.alert(title, message, emptyArrayButtons, alertOptions);
+};
+
+const ipAlert = async () => {
+    const ip = await Network.getNetworkStateAsync()
+    if(ip["isConnected"] == true){
+        console.log("Your phone is connected");
+    }else{
+        console.log("Your phone is not connected");
+        alertWithoutButtons();
+    }
+  };
 
 const LoginScreen = () => {
+    ipAlert();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 

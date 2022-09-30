@@ -8,6 +8,7 @@ import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/core'
 import * as SQLite from 'expo-sqlite';
 import { openDatabase } from 'expo-sqlite';
+import * as Network from 'expo-network';
 
 
 const NUMBER_OF_TRIES = 6;
@@ -17,7 +18,6 @@ const copyArray = (arr) => {
 }
 
 export default function HomeScreen() {
-
   const navigation = useNavigation()
 
   const handleSignOut = () => {
